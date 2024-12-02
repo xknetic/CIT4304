@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIT 4304 FINAL QUIZ 1 HANDS-ON</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 50%;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        #loginSection, #userSection {
+            display: none;
+        }
+        #userSection {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="loginSection">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <div id="userSection">
+            <h2>Welcome, <span id="userNameDisplay"></span></h2>
+            <form id="textForm">
+                <label for="inputText">Enter a string:</label>
+                <input type="text" id="inputText" name="inputText" required>
+                <button type="submit">Submit</button>
+            </form>
+
+            <h3>Submitted Text:</h3>
+            <div id="textDisplay"></div>
+
+            <button id="logoutButton">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        const validCredentials = {
+            username: 'user',
+            password: 'user12345'
+        };
+
+        const loginSection = document.getElementById('loginSection');
+        const userSection = document.getElementById('userSection');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const textForm = document.getElementById('textForm');
+        const inputText = document.getElementById('inputText');
+        const textDisplay = document.getElementById('textDisplay');
+        const logoutButton = document.getElementById('logoutButton');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            displayUserSection();
+        } else {
+            displayLoginSection();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            if (username === validCredentials.username && password === validCredentials.password) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', username);
+                displayUserSection();
+            } else {
+                alert('Invalid username or password!');
+            }
+        });
+
+        textForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const text = inputText.value;
+            let storedTexts = JSON.parse(localStorage.getItem('submittedTexts')) || [];
+            storedTexts.push(text);
+            localStorage.setItem('submittedTexts', JSON.stringify(storedTexts));
+            inputText.value = '';
+            displaySubmittedTexts();
+        });
+
+        logoutButton.addEventListener('click', function() {
+            localStorage.setItem('isLoggedIn', 'false');
+            localStorage.removeItem('username');
+            localStorage.removeItem('submittedTexts');
+            displayLoginSection();
+        });
+
+        function displayUserSection() {
+            loginSection.style.display = 'none';
+            userSection.style.display = 'block';
+            const username = localStorage.getItem('username');
+            userNameDisplay.textContent = username;
+
+            displaySubmittedTexts();
+        }
+
+        function displayLoginSection() {
+            loginSection.style.display = 'block';
+            userSection.style.display = 'none';
+        }
+
+        function displaySubmittedTexts() {
+            const storedTexts = JSON.parse(localStorage.getItem('submittedTexts')) || [];
+            textDisplay.innerHTML = storedTexts.map(text => `<p>${text}</p>`).join('');
+        }
+    </script>
+
+</body>
+</html>
